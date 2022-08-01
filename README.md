@@ -1,2 +1,2 @@
 # action-script-templates
-Templates for common operations within PeopleReign Action Scripts
+Templates for common operations within PeopleReign Action Scripts. Templates are available under /templates.
