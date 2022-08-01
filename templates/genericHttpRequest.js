@@ -116,4 +116,3 @@ axios.request(requestParams)
     console.log(error.config);
 
   })
-  

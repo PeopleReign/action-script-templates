@@ -50,4 +50,3 @@ let res = axios.get(url)
     console.log(error.config);
 
   })
-  
