@@ -28,7 +28,7 @@ let res = axios.get(url)
       - error.response.data: the response body that was provided by the server
       - error.response.status: integer, the HTTP status code from the server response
       - error.response.statusText: string, the HTTP status message from the server response
-      - error.response.headers: object, the headers that the server responded with (all header names lowercased)      console.log(error.response.data);
+      - error.response.headers: object, the headers that the server responded with (all header names lowercased)
       */
     } else if (error.request) {
       // The request was made but no response was received
@@ -47,6 +47,5 @@ let res = axios.get(url)
       - error.message: string, message indicating what went wrong with the request
       */
     }
-    console.log(error.config);
 
   })
