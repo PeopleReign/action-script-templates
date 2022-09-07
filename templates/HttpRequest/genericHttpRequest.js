@@ -4,7 +4,7 @@ Template for executing a generic HTTP request with Axios.
 More information on Axios available at: https://www.npmjs.com/package/axios
 */
 
-// Define the request parameters
+// Define the request parameters. Sample params are provided here for reference.
 let requestParams = {
   // `url` is the server URL that will be used for the request
   url: '/user',
@@ -71,47 +71,50 @@ let requestParams = {
 }
 
 // Execute the request
-axios.request(requestParams)
-  .then((resp) => {
-    // Handle a successful response
+let res = null;
+try {
+  res = axios.request(requestParams);
+}
+catch (error) {
+  if (error.response) {
+    // The request was made and the server responded with a status code
+    // that falls out of the range of 2xx
 
     /* 
-    Available properties include:
-    - 
-    - data: the response body that was provided by the server
-    - status: integer, the HTTP status code from the server response
-    - statusText: string, the HTTP status message from the server response
-    - headers: object, the headers that the server responded with (all header names lowercased)
+    Relevant properties include:
+    - error.response.data: the response body that was provided by the server
+    - error.response.status: integer, the HTTP status code from the server response
+    - error.response.statusText: string, the HTTP status message from the server response
+    - error.response.headers: object, the headers that the server responded with (all header names lowercased)
     */
-  })
-  .catch((error) => {
-    if (error.response) {
-      // The request was made and the server responded with a status code
-      // that falls out of the range of 2xx
+  } else if (error.request) {
+    // The request was made but no response was received
+    // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+    // http.ClientRequest in node.js
 
-      /* 
-      Relevant properties include:
-      - error.response.data: the response body that was provided by the server
-      - error.response.status: integer, the HTTP status code from the server response
-      - error.response.statusText: string, the HTTP status message from the server response
-      - error.response.headers: object, the headers that the server responded with (all header names lowercased)
-      */
-    } else if (error.request) {
-      // The request was made but no response was received
-      // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-      // http.ClientRequest in node.js
+    /*
+    Relevant properties include:
+    - error.request: the request that was sent
+    */
+  } else {
+    // Something happened in setting up the request that triggered an Error
 
-      /*
-      Relevant properties include:
-      - error.request: the request that was sent
-      */
-    } else {
-      // Something happened in setting up the request that triggered an Error
+    /*
+    Relevant properties include:
+    - error.message: string, message indicating what went wrong with the request
+    */
+  }
+}
 
-      /*
-      Relevant properties include:
-      - error.message: string, message indicating what went wrong with the request
-      */
-    }
+if (res !== null) {
+  // Handle a successful response
 
-  })
+  /* 
+  Available properties of `res` include:
+  - 
+  - data: the response body that was provided by the server
+  - status: integer, the HTTP status code from the server response
+  - statusText: string, the HTTP status message from the server response
+  - headers: object, the headers that the server responded with (all header names lowercased)
+  */
+}

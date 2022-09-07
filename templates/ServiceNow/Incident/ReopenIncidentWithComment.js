@@ -1,0 +1,71 @@
+/*
+Requires configurations:
+    serviceNowInstanceName: ID of ServiceNow instance (like: 'acmecorpsubprod', corresponding to https://acmecorpsubprod.service-now.com)
+    serviceNowVirtualAgentUsername: ServiceNow username for the Virtual Agent to use when accessing ServiceNow
+
+Requires secrets:
+    serviceNowVirtualAgentPassword: ServiceNow password for the Virtual Agent to use when accessing ServiceNow
+
+Required ctx:
+    state.serviceNowReopenIncidentSysId: Sys ID of incident in ServiceNow to update.    
+    state.serviceNowReopenIncidentComment: Text of the comment to leave on new incident explaining why it was reopened
+    state.serviceNowReopenIncidentCommenterSysId: sys ID of user leaving the comment
+    state.serviceNowUpdateIncidentCommenterDisplayName: display-name of user leaving the comment
+
+Writes values:
+    ctx.state.serviceNowIncidentResult: obj, content of new incident (value of 'result' property in PATCH response)
+*/
+
+const [snInstanceName, snUsername] = await getVariables(['serviceNowInstanceName', 'serviceNowVirtualAgentUsername']);
+const snPassword = await getSecret('serviceNowVirtualAgentPassword');
+const tableName = 'incident';
+const url = 'https://' + snInstanceName + '.service-now.com/api/now/table/' + tableName + '/' + ctx.state.serviceNowUpdateIncidentSysId;
+
+// Engineer the text of the comment
+const comment = ctx.state.serviceNowReopenIncidentComment + '\n\nIncident reopened and comment added by the PeopleReign Virtual Agent on behalf of ';
+if (state.serviceNowUpdateIncidentCommenterDisplayName) {
+    comment += state.serviceNowUpdateIncidentCommenterDisplayName;
+    if (state.serviceNowReopenIncidentCommenterSysId) {
+        comment += '(User sys_id: ' + state.serviceNowReopenIncidentCommenterSysId + ')';
+    }
+} else {
+    if (state.serviceNowReopenIncidentCommenterSysId) {
+        comment += 'user with sys_id ' + state.serviceNowReopenIncidentCommenterSysId;
+    } else {
+        comment += 'anonymous user'
+    }
+}
+
+const config = {
+    headers: {
+        Accept: 'application/json',
+    },
+    auth: {
+        username: snUsername,
+        password: snPassword
+    }
+}
+
+const body = { 
+    state: 6,
+    comments: comment 
+}
+
+const res = null;
+try {
+    res = await axios.patch(url, body, config);
+}
+catch (error) {
+    if (error.response) {
+        ctx.state.errorLog.push(error.response);
+    } else if (error.request) {
+        ctx.state.errorLog.push(error.request);
+    } else {
+        ctx.state.errorLog.push("Error encountered" + error);
+    }
+}
+
+if (res !== null) {
+    // Handle a successful response
+    ctx.state.serviceNowIncidentResult = res.data.result;
+}
