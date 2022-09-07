@@ -71,8 +71,13 @@ try {
 
     if (res !== null) {
         // Handle a successful response
+        if (!(ctx.state.auth)) {
+            ctx.state.auth = {};
+        }
+        if (!(ctx.state.auth.workday)) {
+            ctx.state.auth.workday = {};
+        }
         ctx.state.auth.workday.accessToken = res.data.data.access_token;
-
     }
 
 } catch (error) {

@@ -57,12 +57,12 @@ if (!('errorLog' in ctx.state)) {
 }
 
 try {
-    let fullName = ctx.user.firstName + ' ' + ctx.user.lastName;
-    let accessToken = ctx.state.auth.workday.accessToken;
-    let [tenantId] = await getConfiguration('workdayTenantId');
+    const fullName = ctx.user.firstName + ' ' + ctx.user.lastName;
+    const accessToken = ctx.state.auth.workday.accessToken;
+    const tenantId = await getVariable('workdayTenantId');
 
     // Define the request parameters
-    let requestParams = {
+    const requestParams = {
         method: 'POST',
         url: 'https://wd2-impl-services1.workday.com/api/common/v1/' + tenantId + '/workers?search=' + fullName,
         headers: {
@@ -86,10 +86,16 @@ try {
     }
     if (res !== null) {
         // Handle a successful response
+        if (!(ctx.state.user)) {
+            ctx.state.user = {};
+        }
+        if (!(ctx.state.user.workday)) {
+            ctx.state.user.workday = {};
+        }
         ctx.state.user.workday.workersMatchingByName = res.data.data;
     }
 
 } catch (error) {
-    let newErr = JSON.stringify(err, Object.getOwnPropertyNames(err));
+    const newErr = JSON.stringify(err, Object.getOwnPropertyNames(err));
     ctx.state.errorLog.push(newErr);
 }
